@@ -106,7 +106,7 @@ start_appl(ApplId,NumToStart,Directive,ClusterId,CookieStr)->
 		    rpc:cast(node(),nodelog,log,[notice,?MODULE_STRING,?LINE,
 						 {"DEBUG: SlaveNode"," ",SlaveNode}]),
 		    NodeAppl=ApplId++".spec",
-		    {ok,ApplId}=db_application_spec:read(name,NodeAppl),
+		    {ok,NodeAppl}=db_application_spec:read(name,NodeAppl),
 		    {ok,ApplVsn}=db_application_spec:read(vsn,NodeAppl),
 		    {ok,GitPath}=db_application_spec:read(gitpath,NodeAppl),
 		    {ok,StartCmd}=db_application_spec:read(cmd,NodeAppl),
