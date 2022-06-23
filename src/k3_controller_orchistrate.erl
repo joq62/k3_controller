@@ -111,7 +111,7 @@ start_appl(ApplId,NumToStart,Directive,ClusterId,CookieStr)->
 		    {ok,GitPath}=db_application_spec:read(gitpath,NodeAppl),
 		    {ok,StartCmd}=db_application_spec:read(cmd,NodeAppl),
 		    case rpc:call(K3Node,node,load_start_appl,[SlaveNode,NodeDir,ApplId,ApplVsn,GitPath,StartCmd],5*5000) of
-			{ok,NodeAppl,_,_}->
+			{ok,ApplId,_,_}->
 			    rpc:cast(node(),nodelog,log,[notice,?MODULE_STRING,?LINE,
 				{"Started ApplId on SlaveNode"," ",ApplId," ",SlaveNode}]),
 			    ok;
