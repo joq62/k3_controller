@@ -15,7 +15,7 @@
 
 %% --------------------------------------------------------------------
 -define(SERVER,?MODULE).
--define(Interval,10*1000).
+-define(Interval,30*1000).
 
 %% External exports
 -export([
@@ -204,6 +204,7 @@ local_desired_state_check(DeploymentName)->
 	       false ->
 		   ok
 	   end,
-    
-    io:format("local_desired_state_check ~p~n",[{?MODULE,?LINE,Result}]),
+    rpc:cast(node(),nodelog,log,[notice,?MODULE_STRING,?LINE,
+				 {"DEBUG: local_desired_state_check"," ",Result}]),
+
     rpc:cast(node(),k3_controller,desired_state_check,[]).

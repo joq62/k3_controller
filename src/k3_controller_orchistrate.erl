@@ -44,6 +44,7 @@
 %% Possible hosts: running_host and part of specific_host
 %% Prioritised: least applications loaded hosts and appl not running host
 %% 
+
 desired_state(DeploymentName)->
     {ok,ClusterId}=db_deployments:read(name,DeploymentName),
     {ok,CookieStr}=db_deployments:read(cookie,DeploymentName),
@@ -58,8 +59,6 @@ desired_state(DeploymentName)->
 %[{"test_math","0.1.0"},{"test_add","0.1.0"},{"test_divi","0.1.0"},{"test_sub","0.1.0"}],
 %                               3,
 %                               [{all_or_nothing,false},{same_host,false}, {specifict_host,[]}]}
-
-
   
     Reply.
 
@@ -74,36 +73,45 @@ start_appl_1(ApplId,NumInstances,Directive,ClusterId,CookieStr)->
     NumToStart=num_to_start(ApplId,NumInstances),
     start_appl(ApplId,NumToStart,Directive,ClusterId,CookieStr).
 
-start_appl(ApplId,0,Directive,ClusterId,CookieStr)->
+start_appl(_ApplId,0,_Directive,_ClusterId,_CookieStr)->
     ok;
 start_appl(ApplId,NumToStart,Directive,ClusterId,CookieStr)->
-    Appl=list_to_atom(ApplId),
+  %  Appl=list_to_atom(ApplId),
     PossibleNodes=possible_nodes(Directive),
-    io:format("PossibleNodes ~p~n",[PossibleNodes]),
+    rpc:cast(node(),nodelog,log,[notice,?MODULE_STRING,?LINE,
+				 {"DEBUG: PossibleNodes "," ",PossibleNodes}]),
+
     PrioritizedNodesAppl=priortize(PossibleNodes,ApplId),
-    io:format("PrioritizedNodesAppl ~p~n",[PrioritizedNodesAppl]),
+    rpc:cast(node(),nodelog,log,[notice,?MODULE_STRING,?LINE,
+				 {"DEBUG: PrioritizedNodesAppl "," ",PrioritizedNodesAppl}]),
+  
     case PrioritizedNodesAppl of
 	[]->
 	    rpc:cast(node(),nodelog,log,[warning,?MODULE_STRING,?LINE,
 					 {"No nodes are available for  ",ApplId}]),
 	    nok;
-	[{_Len,Node,HostName,_ApplInfo}|_]->
-	    NodeName=ClusterId++"_"++ApplId++integer_to_list(erlang:system_time(microsecond),34),
-	    NodeDir=ClusterId,
+	[{_Len,K3Node,HostName,_ApplInfo}|_]->
+	    NodeName=ClusterId++"_"++ApplId++"_"++integer_to_list(erlang:system_time(microsecond),34),
+	    {ok,Cwd}=rpc:call(K3Node,file,get_cwd,[],5000),
+	    NodeDir=filename:join(Cwd,ClusterId),
+%	    NodeDir=ClusterId,
 	    PaArgs=" ",
 	    EnvArgs=" ",
-	    
-	    io:format("Node ~p~n",[Node]),
-
-	    case rpc:call(Node,node,create,[HostName,NodeDir,NodeName,CookieStr,PaArgs,EnvArgs],2*5000) of
+	    rpc:cast(node(),nodelog,log,[notice,?MODULE_STRING,?LINE,
+					{"DEBUG: Load application on K3Node"," ",K3Node}]),
+	    case rpc:call(K3Node,node,create,[HostName,NodeDir,NodeName,CookieStr,PaArgs,EnvArgs],2*5000) of
 		{ok,SlaveNode}->	
+		    rpc:cast(node(),nodelog,log,[notice,?MODULE_STRING,?LINE,
+						 {"DEBUG: SlaveNode"," ",SlaveNode}]),
 		    NodeAppl=ApplId++".spec",
 		    {ok,ApplId}=db_application_spec:read(name,NodeAppl),
 		    {ok,ApplVsn}=db_application_spec:read(vsn,NodeAppl),
 		    {ok,GitPath}=db_application_spec:read(gitpath,NodeAppl),
 		    {ok,StartCmd}=db_application_spec:read(cmd,NodeAppl),
-		    case node:load_start_appl(SlaveNode,NodeDir,ApplId,ApplVsn,GitPath,StartCmd) of
+		    case rpc:call(K3Node,node,load_start_appl,[SlaveNode,NodeDir,ApplId,ApplVsn,GitPath,StartCmd],5*5000) of
 			{ok,NodeAppl,_,_}->
+			    rpc:cast(node(),nodelog,log,[notice,?MODULE_STRING,?LINE,
+				{"Started ApplId on SlaveNode"," ",ApplId," ",SlaveNode}]),
 			    ok;
 			Error ->
 			    rpc:cast(node(),nodelog,log,[warning,?MODULE_STRING,?LINE,
@@ -158,10 +166,7 @@ priortize(PossibleNodes,ApplId)->
 		_->
 		    Stage2
 	    end
-    end.
-	
-  
-  
+    end.  
 %% --------------------------------------------------------------------
 %% Function:start/0 
 %% Description: Initiate the eunit tests, set upp needed processes etc
