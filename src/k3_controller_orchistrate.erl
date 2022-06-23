@@ -76,6 +76,8 @@ start_appl_1(ApplId,NumInstances,Directive,ClusterId,CookieStr)->
 start_appl(_ApplId,0,_Directive,_ClusterId,_CookieStr)->
     ok;
 start_appl(ApplId,NumToStart,Directive,ClusterId,CookieStr)->
+    rpc:cast(node(),nodelog,log,[notice,?MODULE_STRING,?LINE,
+				 {"DEBUG: ApplId "," ",ApplId}]),
   %  Appl=list_to_atom(ApplId),
     PossibleNodes=possible_nodes(Directive),
     rpc:cast(node(),nodelog,log,[notice,?MODULE_STRING,?LINE,
