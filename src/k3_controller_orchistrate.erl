@@ -76,16 +76,16 @@ start_appl_1(ApplId,NumInstances,Directive,ClusterId,CookieStr)->
 start_appl(_ApplId,0,_Directive,_ClusterId,_CookieStr)->
     ok;
 start_appl(ApplId,NumToStart,Directive,ClusterId,CookieStr)->
-    rpc:cast(node(),nodelog,log,[notice,?MODULE_STRING,?LINE,
-				 {"DEBUG: ApplId "," ",ApplId}]),
+  %  rpc:cast(node(),nodelog,log,[notice,?MODULE_STRING,?LINE,
+%				 {"DEBUG: ApplId "," ",ApplId}]),
   %  Appl=list_to_atom(ApplId),
     PossibleNodes=possible_nodes(Directive),
-    rpc:cast(node(),nodelog,log,[notice,?MODULE_STRING,?LINE,
-				 {"DEBUG: PossibleNodes "," ",PossibleNodes}]),
+ %   rpc:cast(node(),nodelog,log,[notice,?MODULE_STRING,?LINE,
+%				 {"DEBUG: PossibleNodes "," ",PossibleNodes}]),
 
     PrioritizedNodesAppl=priortize(PossibleNodes,ApplId),
-    rpc:cast(node(),nodelog,log,[notice,?MODULE_STRING,?LINE,
-				 {"DEBUG: PrioritizedNodesAppl "," ",PrioritizedNodesAppl}]),
+ %   rpc:cast(node(),nodelog,log,[notice,?MODULE_STRING,?LINE,
+%				 {"DEBUG: PrioritizedNodesAppl "," ",PrioritizedNodesAppl}]),
   
     case PrioritizedNodesAppl of
 	[]->
@@ -99,12 +99,12 @@ start_appl(ApplId,NumToStart,Directive,ClusterId,CookieStr)->
 %	    NodeDir=ClusterId,
 	    PaArgs=" ",
 	    EnvArgs=" ",
-	    rpc:cast(node(),nodelog,log,[notice,?MODULE_STRING,?LINE,
-					{"DEBUG: Load application on K3Node"," ",K3Node}]),
+%	    rpc:cast(node(),nodelog,log,[notice,?MODULE_STRING,?LINE,
+%					{"DEBUG: Load application on K3Node"," ",K3Node}]),
 	    case rpc:call(K3Node,node,create,[HostName,NodeDir,NodeName,CookieStr,PaArgs,EnvArgs],2*5000) of
 		{ok,SlaveNode}->	
-		    rpc:cast(node(),nodelog,log,[notice,?MODULE_STRING,?LINE,
-						 {"DEBUG: SlaveNode"," ",SlaveNode}]),
+%		    rpc:cast(node(),nodelog,log,[notice,?MODULE_STRING,?LINE,
+%						 {"DEBUG: SlaveNode"," ",SlaveNode}]),
 		    NodeAppl=ApplId++".spec",
 		    {ok,NodeAppl}=db_application_spec:read(name,NodeAppl),
 		    {ok,ApplVsn}=db_application_spec:read(vsn,NodeAppl),

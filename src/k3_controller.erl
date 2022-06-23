@@ -198,13 +198,13 @@ code_change(_OldVsn, State, _Extra) ->
 
 local_desired_state_check(DeploymentName)->	
     timer:sleep(?Interval),
-    Result=case leader:am_i_leader(node()) of
+    _Result=case leader:am_i_leader(node()) of
 	       true->
 		   rpc:call(node(),k3_controller_orchistrate,desired_state,[DeploymentName],5*60*1000);
 	       false ->
 		   ok
 	   end,
-    rpc:cast(node(),nodelog,log,[notice,?MODULE_STRING,?LINE,
-				 {"DEBUG: local_desired_state_check"," ",Result}]),
+ %   rpc:cast(node(),nodelog,log,[notice,?MODULE_STRING,?LINE,
+%				 {"DEBUG: local_desired_state_check"," ",Result}]),
 
     rpc:cast(node(),k3_controller,desired_state_check,[]).
