@@ -166,6 +166,8 @@ priortize(PossibleNodes,ApplId)->
 	    Stage2=[{Len,Node,HostName,ApplInfo}||{Len,Node,HostName,ApplInfo}<-Stage1,
 						  false=:=lists:keymember(Appl,1,ApplInfo)],
 	    SortedStage2=lists:sort(Stage2),
+	    rpc:cast(node(),nodelog,log,[notice,?MODULE_STRING,?LINE,
+					 {"DEBUG: SortedStage2 "," ",ApplId," ",SortedStage2}]),
 	   
 	    case SortedStage2 of
 		[]->
