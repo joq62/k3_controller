@@ -159,8 +159,17 @@ priortize(PossibleNodes,ApplId)->
     case list_length:start(SortedStage1) of
     	0->
 	    [];
-	_ ->
-	    SortedStage1
+	1 ->
+	    Stage1;
+	_->
+	    
+	   
+	    case SortedStage2 of
+		[]->
+		    SortedStage1;
+		_->
+		    SortedStage2
+	    end
     end.  
 %% --------------------------------------------------------------------
 %% Function:start/0 
@@ -185,7 +194,7 @@ possible_nodes([{all_or_nothing,_},{same_host,_},{specifict_host,HostList}]) ->
 %% Returns: non
 %% --------------------------------------------------------------------
 num_nodes_per_host(WantedHostName)->
-    list_length:start([Node||{Node,HostName,_ApplInfo}<-sd:all(),
+    list_length:start([Node||{Node,HostName,ApplInfo}<-sd:all(),
 			     HostName=:=WantedHostName]).
     
     
