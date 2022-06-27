@@ -71,21 +71,23 @@ desired_state(DeploymentName)->
 
 start_appl_1(ApplId,NumInstances,Directive,ClusterId,CookieStr)->
     NumToStart=num_to_start(ApplId,NumInstances),
+    rpc:cast(node(),nodelog,log,[notice,?MODULE_STRING,?LINE,
+				 {"DEBUG: ApplId, NumToStart "," ",ApplId," ",NumToStart}]),
     start_appl(ApplId,NumToStart,Directive,ClusterId,CookieStr).
 
 start_appl(_ApplId,0,_Directive,_ClusterId,_CookieStr)->
     ok;
 start_appl(ApplId,NumToStart,Directive,ClusterId,CookieStr)->
-  %  rpc:cast(node(),nodelog,log,[notice,?MODULE_STRING,?LINE,
-%				 {"DEBUG: ApplId "," ",ApplId}]),
+    rpc:cast(node(),nodelog,log,[notice,?MODULE_STRING,?LINE,
+				 {"DEBUG: ApplId "," ",ApplId}]),
   %  Appl=list_to_atom(ApplId),
     PossibleNodes=possible_nodes(Directive),
- %   rpc:cast(node(),nodelog,log,[notice,?MODULE_STRING,?LINE,
-%				 {"DEBUG: PossibleNodes "," ",PossibleNodes}]),
+   rpc:cast(node(),nodelog,log,[notice,?MODULE_STRING,?LINE,
+				 {"DEBUG: PossibleNodes "," ",PossibleNodes}]),
 
     PrioritizedNodesAppl=priortize(PossibleNodes,ApplId),
- %   rpc:cast(node(),nodelog,log,[notice,?MODULE_STRING,?LINE,
-%				 {"DEBUG: PrioritizedNodesAppl "," ",PrioritizedNodesAppl}]),
+    rpc:cast(node(),nodelog,log,[notice,?MODULE_STRING,?LINE,
+				 {"DEBUG: PrioritizedNodesAppl "," ",PrioritizedNodesAppl}]),
   
     case PrioritizedNodesAppl of
 	[]->
