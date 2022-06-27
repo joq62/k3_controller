@@ -165,11 +165,13 @@ priortize(PossibleNodes,ApplId)->
 	    
 	    Stage2=[{Len,Node,HostName,ApplInfo}||{Len,Node,HostName,ApplInfo}<-Stage1,
 						  false=:=lists:keymember(Appl,1,ApplInfo)],
-	    case Stage2 of
+	    SortedStage2=lists:sort(Stage2),
+	   
+	    case SortedStage2 of
 		[]->
 		    SortedStage1;
 		_->
-		    Stage2
+		    SortedStage2
 	    end
     end.  
 %% --------------------------------------------------------------------
