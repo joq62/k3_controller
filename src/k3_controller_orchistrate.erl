@@ -169,7 +169,7 @@ priortize(PossibleNodes,ApplId)->
 %% --------------------------------------------------------------------
 
 possible_nodes([{all_or_nothing,_},{same_host,_}, {specifict_host,[]}])->
-    sd:get(k3);
+    sd:get(k3_node);
 possible_nodes([{all_or_nothing,_},{same_host,_},{specifict_host,HostList}]) ->
     NodeHostsList=sd:get(k3_node),
     [{Node,HostName}||{Node,HostName}<-NodeHostsList,
