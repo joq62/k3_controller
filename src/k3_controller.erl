@@ -15,7 +15,7 @@
 
 %% --------------------------------------------------------------------
 -define(SERVER,?MODULE).
--define(Interval,30*1000).
+-define(Interval,60*1000).
 
 %% External exports
 -export([
