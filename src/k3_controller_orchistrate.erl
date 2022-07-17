@@ -84,7 +84,7 @@ multi_start(ApplId,NumInstances,[Host|T],Directive,ClusterId,CookieStr)->
 %% Description: Initiate the eunit tests, set upp needed processes etc
 %% Returns: non
 %% --------------------------------------------------------------------
-singel_start(ApplId,NumInstances,Host,Directive,ClusterId,CookieStr)->
+singel_start(ApplId,NumInstances,Host,_Directive,ClusterId,CookieStr)->
     Appl=list_to_atom(ApplId),  
     NodesHost=sd:get_host(Appl,Host),
     Diff=NumInstances-list_length:start(NodesHost),
@@ -95,7 +95,7 @@ singel_start(ApplId,NumInstances,Host,Directive,ClusterId,CookieStr)->
 singel_start(0,_ApplId,_Host,_ClusterId,_CookieStr)->
     ok;
 singel_start(N,ApplId,Host,ClusterId,CookieStr)->
-    Appl=list_to_atom(ApplId),  
+    %Appl=list_to_atom(ApplId),  
     case sd:get_host(k3_node,Host) of
 	[]->
 	    ok;
@@ -106,24 +106,36 @@ singel_start(N,ApplId,Host,ClusterId,CookieStr)->
 	    PaArgs=" ",
 	    EnvArgs=" ",
 	    {ok,SlaveNode}=rpc:call(K3Node,node,create,[HostName,NodeDir,NodeName,CookieStr,PaArgs,EnvArgs],2*5000),
-	    NodeAppl=ApplId++".spec",
-	    {ok,NodeAppl}=db_application_spec:read(name,NodeAppl),
-	    {ok,ApplVsn}=db_application_spec:read(vsn,NodeAppl),
-	    {ok,GitPath}=db_application_spec:read(gitpath,NodeAppl),
-	    {ok,StartCmd}=db_application_spec:read(cmd,NodeAppl),
-	    {ok,ApplId,_,_}=rpc:call(K3Node,node,load_start_appl,[SlaveNode,NodeDir,ApplId,ApplVsn,GitPath,StartCmd],5*5000)
+	    {ok,"common"}=start_appl("common",K3Node,SlaveNode,NodeDir),
+	    {ok,"sd"}=start_appl("sd",K3Node,SlaveNode,NodeDir),
+	    {ok,ApplId}=start_appl(ApplId,K3Node,SlaveNode,NodeDir)
+	    
+	  % NodeAppl=ApplId++".spec",
+	  
+
+	 %   {ok,NodeAppl}=db_application_spec:read(name,NodeAppl),
+	 %   {ok,ApplVsn}=db_application_spec:read(vsn,NodeAppl),
+	 %   {ok,GitPath}=db_application_spec:read(gitpath,NodeAppl),
+	 %   {ok,StartCmd}=db_application_spec:read(cmd,NodeAppl),
+	    %% Start sd and common
+%	    {ok,ApplId,_,_}=rpc:call(K3Node,node,load_start_appl,[SlaveNode,NodeDir,ApplId,ApplVsn,GitPath,StartCmd],5*5000)
     end,
     singel_start(N-1,ApplId,Host,ClusterId,CookieStr).
 
-
+start_appl(ApplId,K3Node,SlaveNode,NodeDir)->
+    ApplSpec=ApplId++".spec",
+    {ok,ApplSpec}=db_application_spec:read(name,ApplSpec),
+    {ok,ApplVsn}=db_application_spec:read(vsn,ApplSpec),
+    {ok,GitPath}=db_application_spec:read(gitpath,ApplSpec),
+    {ok,StartCmd}=db_application_spec:read(cmd,ApplSpec),
+    {ok,ApplId,_,_}=rpc:call(K3Node,node,load_start_appl,[SlaveNode,NodeDir,ApplId,ApplVsn,GitPath,StartCmd],5*5000),
+    {ok,ApplId}.
 
 %% --------------------------------------------------------------------
 %% Function:start/0 
 %% Description: Initiate the eunit tests, set upp needed processes etc
 %% Returns: non
 %% --------------------------------------------------------------------
-
-
 
 start_appl_1(ApplId,NumInstances,Directive,ClusterId,CookieStr)->
     NumToStart=num_to_start(ApplId,NumInstances),
