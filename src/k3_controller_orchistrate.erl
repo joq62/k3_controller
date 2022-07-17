@@ -108,6 +108,7 @@ singel_start(N,ApplId,Host,ClusterId,CookieStr)->
 	    {ok,SlaveNode}=rpc:call(K3Node,node,create,[HostName,NodeDir,NodeName,CookieStr,PaArgs,EnvArgs],2*5000),
 	%    {ok,"common"}=start_appl("common",K3Node,SlaveNode,NodeDir),
 	 %   {ok,"sd"}=start_appl("sd",K3Node,SlaveNode,NodeDir),
+	    
 	    {ok,ApplId}=start_appl(ApplId,K3Node,SlaveNode,NodeDir)
 	    
 	  % NodeAppl=ApplId++".spec",
@@ -128,6 +129,11 @@ start_appl(ApplId,K3Node,SlaveNode,NodeDir)->
     {ok,ApplVsn}=db_application_spec:read(vsn,ApplSpec),
     {ok,GitPath}=db_application_spec:read(gitpath,ApplSpec),
     {ok,StartCmd}=db_application_spec:read(cmd,ApplSpec),
+    K3NodeEbin=rpc:call(K3Node,code,where_is_file,["ebin"],5000),
+    true=rpc:call(SlaveNode,code,add_patha,[K3NodeEbin],5000),
+    ok=rpc:call(SlaveNode,application,start,[common],5000),
+    ok=rpc:call(SlaveNode,application,start,[sd],5000),
+		  
     {ok,ApplId,_,_}=rpc:call(K3Node,node,load_start_appl,[SlaveNode,NodeDir,ApplId,ApplVsn,GitPath,StartCmd],5*5000),
     {ok,ApplId}.
 
