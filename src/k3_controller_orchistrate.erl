@@ -106,8 +106,8 @@ singel_start(N,ApplId,Host,ClusterId,CookieStr)->
 	    PaArgs=" ",
 	    EnvArgs=" ",
 	    {ok,SlaveNode}=rpc:call(K3Node,node,create,[HostName,NodeDir,NodeName,CookieStr,PaArgs,EnvArgs],2*5000),
-	    {ok,"common"}=start_appl("common",K3Node,SlaveNode,NodeDir),
-	    {ok,"sd"}=start_appl("sd",K3Node,SlaveNode,NodeDir),
+	%    {ok,"common"}=start_appl("common",K3Node,SlaveNode,NodeDir),
+	 %   {ok,"sd"}=start_appl("sd",K3Node,SlaveNode,NodeDir),
 	    {ok,ApplId}=start_appl(ApplId,K3Node,SlaveNode,NodeDir)
 	    
 	  % NodeAppl=ApplId++".spec",

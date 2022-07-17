@@ -8,7 +8,10 @@ all:
 	rebar3 compile;	
 	cp _build/default/lib/*/ebin/* ebin;
 	rm -rf _build test_ebin logs log;
-	echo Done
+	git add -f *;
+	git commit -m $(m);
+	git push;
+	echo success - compile k3_node
 check:
 	rebar3 check
 
